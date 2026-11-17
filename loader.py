@@ -340,7 +340,11 @@ def _load_contracts(path: Path, issues: list[Issue]) -> dict[str, Contract]:
         signed_at = parse_date(
             row.get("signed_at"), source=source, line=line, field_name="signed_at"
         )
-        assert signed_at is not None  # обязательное поле
+        if signed_at is None:  # обязательное поле: parse_date уже проверил значение
+            raise DataError(
+                f"{source}, строка {line}, поле signed_at: "
+                "не удалось определить дату подписания договора"
+            )
         contracts[contract_id] = Contract(
             contract_id=contract_id,
             contractor=_require_text(row, "contractor", source=source, line=line),
@@ -432,7 +436,11 @@ def _load_payments(path: Path, issues: list[Issue]) -> dict[str, Payment]:
         created_at = parse_date(
             row.get("created_at"), source=source, line=line, field_name="created_at"
         )
-        assert created_at is not None  # обязательное поле
+        if created_at is None:  # обязательное поле: parse_date уже проверил значение
+            raise DataError(
+                f"{source}, строка {line}, поле created_at: "
+                "не удалось определить дату создания платежа"
+            )
         payments[payment_id] = Payment(
             payment_id=payment_id,
             contract_id=_require_text(row, "contract_id", source=source, line=line),
